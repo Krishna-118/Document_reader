@@ -1,8 +1,9 @@
 streamlit
 langchain
 langchain-community
-langchain-openai
+langchain-groq
 faiss-cpu
 pypdf
 tiktoken
 python-dotenv
+
