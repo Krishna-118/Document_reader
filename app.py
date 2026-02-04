@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-st.set_page_config(page_title="HR Policy RAG Chatbot", layout="wide")
-st.title("📄 HR Policy RAG Chatbot")
+st.set_page_config(page_title="Document reader Chatbot", layout="wide")
+st.title("📄 Document reader  Chatbot")
 
 if "vectorstore" not in st.session_state:
     st.session_state.vectorstore = None
@@ -20,21 +20,21 @@ if "chat_history" not in st.session_state:
 
 # Upload PDFs
 uploaded_files = st.file_uploader(
-    "Upload policy PDFs",
+    "Upload document PDFs",
     type=["pdf"],
     accept_multiple_files=True
 )
 
-if st.button("Process policies"):
+if st.button("Process document"):
     if uploaded_files:
-        with st.spinner("Processing policies..."):
+        with st.spinner("Processing documents..."):
             st.session_state.vectorstore = process_pdfs(uploaded_files)
-        st.success("Policies processed successfully!")
+        st.success("documents processed successfully!")
     else:
         st.warning("Please upload at least one PDF.")
 
 # Chat section
-query = st.text_input("Ask questions about candidates")
+query = st.text_input("Ask questions about documents")
 
 if query and st.session_state.vectorstore:
     llm = ChatGroq(
@@ -67,7 +67,7 @@ if query and st.session_state.vectorstore:
         "You are an assistant for question-answering tasks. Use "
         "the following pieces of retrieved context to answer the "
         "question. If you don't know the answer,just say dont know "
-        ". Use 20 sentences maximum and keep the answer "
+        ". Use 70 sentences  and keep the answer and give answer like a professor to write in a exam"
         "concise."
         "\n\n"
         "{context}"
@@ -107,4 +107,5 @@ if query and st.session_state.vectorstore:
             st.write(doc.metadata)
 
 else:
-    st.info("Upload and process policies to start chatting.")
+    st.info("Upload and process document to start chatting.")
+
