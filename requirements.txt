@@ -2,8 +2,12 @@ streamlit
 langchain
 langchain-community
 langchain-groq
-faiss-cpu
-pypdf
-tiktoken
-python-dotenv
+groq
 
+sentence-transformers
+transformers
+torch
+
+chromadb
+pypdf
+python-docx
