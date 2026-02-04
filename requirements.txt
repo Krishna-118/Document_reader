@@ -11,3 +11,5 @@ torch
 chromadb
 pypdf
 python-docx
+faiss-cpu
+
