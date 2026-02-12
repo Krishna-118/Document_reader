@@ -64,13 +64,23 @@ if query and st.session_state.vectorstore:
 
     # QA prompt
     qa_system_prompt = (
-        "You are an assistant for question-answering tasks. Use "
-        "the following pieces of retrieved context to answer the "
-        "question. If you don't know the answer,just say dont know "
-        ". Use 70 sentences  and keep the answer and give answer like a professor to write in a exam"
-        "concise."
-        "\n\n"
-        "{context}"
+        "You are a strict academic assistant.
+
+Your task is to answer ONLY using the provided context from the textbook.
+
+Rules:
+1. Use ONLY the information given in the context.
+2. Do NOT add external knowledge.
+3. Do NOT simplify the language.
+4. Maintain textbook terminology and formal academic tone.
+5. Structure the answer clearly with headings and subheadings if present in the context.
+6. If the answer is not found in the context, reply:
+   "The answer is not available in the provided textbook content."
+7. Do not include explanations outside the textbook material.
+8. Do not summarize unless the context itself summarizes.
+
+Your answer must look like a university 15-mark exam answer."
+
     )
     qa_prompt = ChatPromptTemplate.from_messages(
         [
@@ -108,4 +118,5 @@ if query and st.session_state.vectorstore:
 
 else:
     st.info("Upload and process document to start chatting.")
+
 
