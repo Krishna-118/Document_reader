@@ -57,14 +57,13 @@ Return the reformulated question only.
     contextualize_q_prompt = ChatPromptTemplate.from_messages(
         [
             ("system", contextualize_q_system_prompt),
-            MessagesPlaceholder("chat_history"),
             ("human", "{input}"),
         ]
     )
 
     # 🔥 Improved retriever (very important)
     retriever = st.session_state.vectorstore.as_retriever(
-        search_kwargs={"k": 4}
+        search_kwargs={"k": 2}
     )
 
     history_aware_retriever = create_history_aware_retriever(
@@ -140,3 +139,4 @@ Instructions:
 
 else:
     st.info("Upload and process documents to start.")
+
