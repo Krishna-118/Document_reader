@@ -18,7 +18,7 @@ def process_pdfs(pdf_files):
         os.remove(pdf.name)
 
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
+        chunk_size=800,
         chunk_overlap=150
     )
 
@@ -28,5 +28,6 @@ def process_pdfs(pdf_files):
     vectorstore = FAISS.from_documents(chunks, embeddings)
     
     print(documents)
+
 
     return vectorstore
