@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from langchain_groq import ChatGroq
 from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
@@ -40,7 +41,8 @@ if query and st.session_state.vectorstore:
 
     # 🔥 Use stronger model for better instruction following
     llm = ChatGroq(
-        model_name="llama-3.1-70b-versatile",  # change if not available
+        groq_api_key=st.secrets("GROQ_API_KEY"),
+        model_name="llama3-70b-8192",  # change if not available
         temperature=0
     )
 
@@ -63,7 +65,7 @@ Return the reformulated question only.
 
     # 🔥 Improved retriever (very important)
     retriever = st.session_state.vectorstore.as_retriever(
-        search_kwargs={"k": 2}
+        search_kwargs={"k": 1}
     )
 
     history_aware_retriever = create_history_aware_retriever(
@@ -120,9 +122,12 @@ Instructions:
     # Convert chat history
     chat_history_messages = []
     for q, a in st.session_state.chat_history:
-        chat_history_messages.append(HumanMessage(content=q))
-        chat_history_messages.append(AIMessage(content=a))
+        if q and a:
+        chat_history_messages.append(HumanMessage(content=str(q)))
+        chat_history_messages.append(AIMessage(content=str(a)))
 
+# limit size
+chat_history_messages = chat_history_messages[-6:]
     result = rag_chain.invoke({
         "input": query,
         "chat_history": chat_history_messages
