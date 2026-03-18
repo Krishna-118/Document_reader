@@ -24,10 +24,9 @@ def process_pdfs(pdf_files):
 
     chunks = text_splitter.split_documents(documents)
 
-    embeddings = HuggingFaceEmbeddings()
-    vectorstore = FAISS.from_documents(chunks, embeddings)
-    
-    print(documents)
+    # ✅ stable embedding model
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
+    vectorstore = FAISS.from_documents(chunks, embeddings)
 
     return vectorstore
