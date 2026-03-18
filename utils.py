@@ -13,9 +13,18 @@ def process_pdfs(pdf_files):
 
         loader = PyPDFLoader(pdf.name)
         docs = loader.load()
-        documents.extend(docs)
 
+        # ✅ Check if PDF has content
+        if not docs:
+            print(f"No content found in {pdf.name}")
+            continue
+
+        documents.extend(docs)
         os.remove(pdf.name)
+
+    # ❌ If no documents at all
+    if not documents:
+        raise ValueError("No text could be extracted from the uploaded PDFs.")
 
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=800,
@@ -24,7 +33,10 @@ def process_pdfs(pdf_files):
 
     chunks = text_splitter.split_documents(documents)
 
-    # ✅ stable embedding model
+    # ❌ If chunks empty → stop
+    if not chunks:
+        raise ValueError("Text splitting resulted in no chunks.")
+
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
     vectorstore = FAISS.from_documents(chunks, embeddings)
