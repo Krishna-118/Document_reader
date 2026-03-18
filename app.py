@@ -4,7 +4,7 @@ from langchain_groq import ChatGroq
 from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import ChatPromptTemplate
 from utils import process_pdfs
 from dotenv import load_dotenv
 
@@ -13,6 +13,7 @@ load_dotenv()
 st.set_page_config(page_title="Academic Textbook RAG", layout="wide")
 st.title("📚 Academic Textbook Assistant")
 
+# Session state
 if "vectorstore" not in st.session_state:
     st.session_state.vectorstore = None
 
@@ -39,10 +40,10 @@ query = st.text_input("Ask a textbook-based question")
 
 if query and st.session_state.vectorstore:
 
-    # 🔥 Use stronger model for better instruction following
+    # ✅ Correct LLM setup
     llm = ChatGroq(
-        groq_api_key=st.secrets("GROQ_API_KEY"),
-        model_name="llama3-70b-8192",  # change if not available
+        groq_api_key=st.secrets["GROQ_API_KEY"],  # IMPORTANT
+        model_name="llama3-70b-8192",
         temperature=0
     )
 
@@ -63,7 +64,7 @@ Return the reformulated question only.
         ]
     )
 
-    # 🔥 Improved retriever (very important)
+    # Retriever
     retriever = st.session_state.vectorstore.as_retriever(
         search_kwargs={"k": 1}
     )
@@ -73,7 +74,7 @@ Return the reformulated question only.
     )
 
     # -----------------------------
-    # STRICT Academic QA Prompt
+    # QA Prompt (FIXED)
     # -----------------------------
     qa_system_prompt = """
 You are a strict academic assistant.
@@ -95,7 +96,6 @@ STRICT RULES:
     qa_prompt = ChatPromptTemplate.from_messages(
         [
             ("system", qa_system_prompt),
-            MessagesPlaceholder("chat_history"),
             ("human", """
 Context:
 {context}
@@ -119,29 +119,34 @@ Instructions:
         question_answer_chain
     )
 
-    # Convert chat history
+    # ✅ FIXED chat history handling
     chat_history_messages = []
+
     for q, a in st.session_state.chat_history:
         if q and a:
-        chat_history_messages.append(HumanMessage(content=str(q)))
-        chat_history_messages.append(AIMessage(content=str(a)))
+            chat_history_messages.append(HumanMessage(content=str(q)))
+            chat_history_messages.append(AIMessage(content=str(a)))
 
-# limit size
-chat_history_messages = chat_history_messages[-6:]
+    # limit size
+    chat_history_messages = chat_history_messages[-6:]
+
+    # Invoke
     result = rag_chain.invoke({
         "input": query,
         "chat_history": chat_history_messages
     })
 
+    # Save history
     st.session_state.chat_history.append((query, result["answer"]))
 
+    # Display answer
     st.markdown("### 📘 Answer")
     st.write(result["answer"])
 
+    # Show sources
     with st.expander("📚 Source Documents"):
         for doc in result["context"]:
             st.write(doc.metadata)
 
 else:
     st.info("Upload and process documents to start.")
-
